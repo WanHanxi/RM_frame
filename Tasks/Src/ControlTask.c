@@ -114,10 +114,10 @@ void Chassis_Data_Decoding()
 						+ ChassisSpeedRef.left_right_ref	*0.075 
 						+ ChassisSpeedRef.rotate_ref		*0.075)*160;
 	CMBL.TargetAngle = (  ChassisSpeedRef.forward_back_ref	*0.075 
-						- ChassisSpeedRef.left_right_ref	*0.09 
+						- ChassisSpeedRef.left_right_ref	*0.075 
 						+ ChassisSpeedRef.rotate_ref		*0.075)*160;
 	CMBR.TargetAngle = (- ChassisSpeedRef.forward_back_ref	*0.075 
-						- ChassisSpeedRef.left_right_ref	*0.09 
+						- ChassisSpeedRef.left_right_ref	*0.075 
 						+ ChassisSpeedRef.rotate_ref		*0.075)*160;
 }
 
