@@ -4,7 +4,7 @@
 1. 增加波轮 (人参果)
 2. 增加主板24V供电 (人参果)
 3. 2006 Boosted (停不下来！！！！！！)
-4. 调节底盘四轮转速
+4. 调节底盘四轮转速 (see the WheelModified branch)
 5. 根据官方的教程修了watchdog的bug，应急断电可用
 
 
