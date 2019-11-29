@@ -47,3 +47,4 @@ MDK-ARM/RM_frame/system_stm32f4xx.o
 MDK-ARM/RM_frame/tim.o
 MDK-ARM/RM_frame/uppertask.o
 MDK-ARM/RM_frame/usart.o
+*.wan
