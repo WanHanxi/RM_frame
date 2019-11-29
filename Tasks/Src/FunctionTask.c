@@ -119,7 +119,7 @@ void RemoteControlProcess(Remote *rc)
 	}
 	if(WorkState == ADDITIONAL_STATE_TWO)                                                   //下档
 	{
-				M2006.TargetAngle += 30;                                             //对于2006，经验上这样的转速是适中的，可以自行在这个基础上调节
+				M2006.Intensity += 30;                                             //对于2006，经验上这样的转速是适中的，可以自行在这个基础上调节
 
 	}
 	
