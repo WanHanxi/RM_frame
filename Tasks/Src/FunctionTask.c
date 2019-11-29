@@ -63,18 +63,19 @@ void RemoteControlProcess(Remote *rc)
 	
 	
 	if(WorkState == NORMAL_STATE)                                                            //上档
-	{	
+	{	//2006stop
+		M2006.RealAngle=M2006.TargetAngle;
 		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;    //-           //这里已经默认写好了底盘的控制函数 
 		ChassisSpeedRef.left_right_ref   = -channelrrow * RC_CHASSIS_SPEED_REF/2;  //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
 		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;                                   //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);                                              //这个函数用于生成PWM波
 	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2,1500-(rc->ch3-1000));                            //ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
 		
-		//one push
+		//one push for dial
 		if (rc->dial>1100&&hookmode==0&&hookmode_now!=1)//向下
 			{
 			hookmode=1;
-			auto_counter=780;
+			auto_counter=780; //timer
 		}
 		if (rc->dial<900&&hookmode==0&&hookmode_now!=2)//向上
 			{
@@ -109,18 +110,58 @@ void RemoteControlProcess(Remote *rc)
 		//demo end
 	}                                                                                          
 	if(WorkState == ADDITIONAL_STATE_ONE)                                                   //中档
-	{
+	{//2006run
+		M2006.TargetAngle += 30;
+		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;    //-           //这里已经默认写好了底盘的控制函数 
+		ChassisSpeedRef.left_right_ref   = -channelrrow * RC_CHASSIS_SPEED_REF/2;  //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;                                   //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
+		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);                                              //这个函数用于生成PWM波
+	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2,1500-(rc->ch3-1000));                            //ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
+		
+		//one push for dial
+		if (rc->dial>1100&&hookmode==0&&hookmode_now!=1)//向下
+			{
+			hookmode=1;
+			auto_counter=780; //timer
+		}
+		if (rc->dial<900&&hookmode==0&&hookmode_now!=2)//向上
+			{
+			hookmode=2;
+			auto_counter=890;
+		}
+		if (hookmode==1)
+		{
+				__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2,2500);
+		}
+		else if (hookmode==2)
+		{
+				__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2,500);
+		}
+		if (auto_counter<200&&auto_counter>0)
+		{
+			if (hookmode==1)hookmode_now=1;
+			else if (hookmode==2)hookmode_now=2;
+			hookmode=0;
+			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2,1500);
+		}
+		
+		
+		
+		
+		/*
 		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_2);                                              //这个函数用于生成PWM波
 	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);                                   //这个函数用于生成占空比，cube中已经配置好了周期
-		//M2006.TargetAngle += channellcol * 0.02;                                                                                      //为20ms（与舵机一致）的时钟,只需修改第三个参数，
+		                                                                                      //为20ms（与舵机一致）的时钟,只需修改第三个参数，
 		                                                                                      //对应关系为：0对应0,20000对应20ms，1500对应1.5ms，
 		                                                                                      //已知舵机仅接受0.5-2.5ms的信号，所以1500相当于令舵机转90°，
 		                                                                                      //500即0°，2500相当于转180°
+		*/
 	}
+	
 	if(WorkState == ADDITIONAL_STATE_TWO)                                                   //下档
 	{
-				M2006.Intensity += 30;                                             //对于2006，经验上这样的转速是适中的，可以自行在这个基础上调节
-
+		HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_3);                                              //这个函数用于生成PWM波
+	  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3,2500);
 	}
 	
 	
