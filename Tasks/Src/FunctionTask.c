@@ -65,12 +65,12 @@ void RemoteControlProcess(Remote *rc)
 	if (WorkState == NORMAL_STATE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
 	{
 		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
 		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
 		//左边上下为刷子
-		//angle加为刷球入库
+		//angle正为刷球入库
 		M2006.TargetAngle += channellcol * 0.05;
 		if (channellcol==0) M2006.RealAngle=M2006.TargetAngle;//锁止2006
 		
@@ -125,7 +125,7 @@ void RemoteControlProcess(Remote *rc)
 	{
 		M2006.TargetAngle += 30;
 		ChassisSpeedRef.forward_back_ref = channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
 		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
