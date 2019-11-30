@@ -64,9 +64,9 @@ void RemoteControlProcess(Remote *rc)
 
 	if (WorkState == NORMAL_STATE||WorkState == ADDITIONAL_STATE_ONE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
 	{
-		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
-		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
+		ChassisSpeedRef.forward_back_ref = channelrcol * RC_CHASSIS_SPEED_REF*1.5f;   //-           //这里已经默认写好了底盘的控制函数
+		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF /3; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		rotate_speed = channellrow * RC_ROTATE_SPEED_REF*1.5f   ;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
 		//左边上下为刷子
@@ -84,15 +84,15 @@ void RemoteControlProcess(Remote *rc)
 		
 		
 		//one push for 钩子
-		if (rc->dial > 1100 && hookmode == 0) //向下
+		if (rc->dial > 1100 && hookmode!=1) //向下
 		{
 			hookmode = 1;
-			auto_counter = 900;
+			auto_counter = 950;
 		}
-		if (rc->dial < 900 && hookmode == 0) //向上
+		if (rc->dial < 900 && hookmode!=2) //向上
 		{
 			hookmode = 2;
-			auto_counter = 890;
+			auto_counter = 1050;
 		}
 		if (hookmode == 1)
 		{
@@ -104,13 +104,15 @@ void RemoteControlProcess(Remote *rc)
 		}
 		if (auto_counter < 200 && auto_counter > 0)
 		{
+			auto_counter=0;
 			hookmode = 0;
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);
 		}
 		if (WorkState == ADDITIONAL_STATE_ONE)
 		{
-					M2006.TargetAngle += 30;
+					M2006.TargetAngle += 1000;
 		}
+		if (auto_counter<0)auto_counter=0;
 		//可以直接控制车的前进后退速度，其余两个同理
 		//如果想要提高车速，只需要在等号右侧乘上一个系数即可
 		//当然速度的提高是有上限的，还请根据需要自行调节
@@ -132,7 +134,7 @@ void RemoteControlProcess(Remote *rc)
 		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4); //这个函数用于生成PWM波
 		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 1500);
 	}
-
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	Limit_and_Synchronization();

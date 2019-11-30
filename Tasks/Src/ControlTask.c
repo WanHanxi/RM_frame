@@ -84,6 +84,9 @@ void WorkStateFSM(void)
 		{
 			for(int i=0;i<8;i++) {InitMotor(can1[i]);InitMotor(can2[i]);}
 			setCAN11();setCAN12();setCAN21();setCAN22();
+			for (int i=0;i<5;i++){
+			can1[i]->RealAngle=can1[i]->TargetAngle;
+			}
 			if (inputmode == REMOTE_INPUT || inputmode == KEY_MOUSE_INPUT)
 			{
 				WorkState = PREPARE_STATE;
