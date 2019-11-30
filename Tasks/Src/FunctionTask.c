@@ -65,14 +65,14 @@ void RemoteControlProcess(Remote *rc)
 	if (WorkState == NORMAL_STATE||WorkState == ADDITIONAL_STATE_ONE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
 	{
 		ChassisSpeedRef.forward_back_ref = channelrcol * RC_CHASSIS_SPEED_REF*1.5f;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF /3; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
-		rotate_speed = channellrow * RC_ROTATE_SPEED_REF*1.5f   ;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
+		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF *3/4; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF*1.5f;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
 		//左边上下为刷子
 		//angle正为刷球入库
 		M2006.TargetAngle += channellcol * 0.05;
-		if (channellcol==0) M2006.RealAngle=M2006.TargetAngle;//锁止2006
+		if (channellcol==0) M2006.RealAngle=  M2006.TargetAngle;//锁止2006
 		
 		
 		/*左边上下为钩子微调
@@ -84,10 +84,10 @@ void RemoteControlProcess(Remote *rc)
 		
 		
 		//one push for 钩子
-		if (rc->dial > 1100 && hookmode!=1) //向下
+		if (rc->dial > 1100 && hookmode!=1) //向下持续施力
 		{
 			hookmode = 1;
-			auto_counter = 950;
+			//auto_counter = 950;
 		}
 		if (rc->dial < 900 && hookmode!=2) //向上
 		{
@@ -98,16 +98,17 @@ void RemoteControlProcess(Remote *rc)
 		{
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 2500);
 		}
-		else if (hookmode == 2)
+		else  if (hookmode == 2)
 		{
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 500);
 		}
-		if (auto_counter < 200 && auto_counter > 0)
+		if (hookmode!=1&&auto_counter < 200 && auto_counter > 0)
 		{
 			auto_counter=0;
 			hookmode = 0;
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);
 		}
+		//MO  DE 2 2006
 		if (WorkState == ADDITIONAL_STATE_ONE)
 		{
 					M2006.TargetAngle += 1000;
