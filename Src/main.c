@@ -132,7 +132,7 @@ int main(void)
 	HAL_GPIO_WritePin(LED_USER4_GPIO_Port,LED_USER4_Pin,GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED_USER6_GPIO_Port,LED_USER6_Pin,GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED_USER8_GPIO_Port,LED_USER8_Pin,GPIO_PIN_RESET);
-	
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);//打开PWM
 	
 	//各模块初始化
 	InitRemoteControl();

@@ -75,45 +75,23 @@ void RemoteControlProcess(Remote *rc)
 		if (channellcol==0) M2006.RealAngle=  M2006.TargetAngle;//锁止2006
 		
 		
-		/*左边上下为钩子微调
+		//左边上下为钩子微调
 		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);								  //这个函数用于生成PWM波
-		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500 - (rc->ch3 - 1000));	//ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
-		*/
-		
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);//打开PWM
+		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);	//ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
 		
 		
 		//one push for 钩子
-		if (rc->dial > 1100 && hookmode!=1) //向下持续施力
+		/*
+		if (rc->dial > 1100) //向下
 		{
-			hookmode = 1;
-			//auto_counter = 950;
-		}
-		if (rc->dial < 900 && hookmode!=2) //向上
-		{
-			hookmode = 2;
-			auto_counter = 1050;
-		}
-		if (hookmode == 1)
-		{
+			
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 2500);
 		}
-		else  if (hookmode == 2)
+		if (rc->dial < 900) //向上
 		{
-			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 500);
+			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1800 );
 		}
-		if (hookmode!=1&&auto_counter < 200 && auto_counter > 0)
-		{
-			auto_counter=0;
-			hookmode = 0;
-			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);
-		}
-		//MO  DE 2 2006
-		if (WorkState == ADDITIONAL_STATE_ONE)
-		{
-					M2006.TargetAngle += 1000;
-		}
-		if (auto_counter<0)auto_counter=0;
+		*/
 		//可以直接控制车的前进后退速度，其余两个同理
 		//如果想要提高车速，只需要在等号右侧乘上一个系数即可
 		//当然速度的提高是有上限的，还请根据需要自行调节
@@ -126,14 +104,13 @@ void RemoteControlProcess(Remote *rc)
 	if (WorkState == ADDITIONAL_STATE_TWO) //扔球模式，拨轮控制电机，方法同１                                                   //下档
 	{
 		M2006.RealAngle=M2006.TargetAngle;//锁止2006
-		
-		
-		
-		
+		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500+channellcol);
+		/*
 		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3); //这个函数用于生成PWM波
 		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, 1500);
 		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4); //这个函数用于生成PWM波
 		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 1500);
+		*/
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
