@@ -62,11 +62,11 @@ void RemoteControlProcess(Remote *rc)
 	////////////////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////主要功能在这里编写
 
-	if (WorkState == NORMAL_STATE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
+	if (WorkState == NORMAL_STATE||WorkState == ADDITIONAL_STATE_ONE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
 	{
-		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF/2;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 4; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
-		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF/2;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
+		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
+		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
 		//左边上下为刷子
@@ -80,16 +80,16 @@ void RemoteControlProcess(Remote *rc)
 		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500 - (rc->ch3 - 1000));	//ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
 		*/
 		
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);//打开PWM
 		
 		
 		//one push for 钩子
-		if (rc->dial > 1100 && hookmode == 0 && hookmode_now != 1) //向下
+		if (rc->dial > 1100 && hookmode == 0) //向下
 		{
 			hookmode = 1;
 			auto_counter = 900;
 		}
-		if (rc->dial < 900 && hookmode == 0 && hookmode_now != 2) //向上
+		if (rc->dial < 900 && hookmode == 0) //向上
 		{
 			hookmode = 2;
 			auto_counter = 890;
@@ -104,14 +104,13 @@ void RemoteControlProcess(Remote *rc)
 		}
 		if (auto_counter < 200 && auto_counter > 0)
 		{
-			if (hookmode == 1)
-				hookmode_now = 1;
-			else if (hookmode == 2)
-				hookmode_now = 2;
 			hookmode = 0;
 			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);
 		}
-
+		if (WorkState == ADDITIONAL_STATE_ONE)
+		{
+					M2006.TargetAngle += 30;
+		}
 		//可以直接控制车的前进后退速度，其余两个同理
 		//如果想要提高车速，只需要在等号右侧乘上一个系数即可
 		//当然速度的提高是有上限的，还请根据需要自行调节
@@ -120,55 +119,6 @@ void RemoteControlProcess(Remote *rc)
 		//	M2006.TargetAngle += channellcol * 0.05;                                             //对于2006，经验上这样的转速是适中的，可以自行在这个基础上调节
 
 		//demo end
-	}
-	if (WorkState == ADDITIONAL_STATE_ONE) //刷子在此模式默认开启，其他功能不变，行动方向以刷子为正
-	{
-		M2006.TargetAngle += 30;
-		ChassisSpeedRef.forward_back_ref = channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
-		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
-		
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-		
-		//one push for 钩子
-		if (rc->dial > 1100 && hookmode == 0 && hookmode_now != 1) //向下
-		{
-			hookmode = 1;
-			auto_counter = 890																																																																																																																																																																																																		;
-		}
-		if (rc->dial < 900 && hookmode == 0 && hookmode_now != 2) //向上
-		{
-			hookmode = 2;
-			auto_counter = 890;
-		}
-		if (hookmode == 1)
-		{
-			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 2500);
-		}
-		else if (hookmode == 2)
-		{
-			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 500);
-		}
-		if (auto_counter < 200 && auto_counter > 0)
-		{
-			if (hookmode == 1)
-				hookmode_now = 1;
-			else if (hookmode == 2)
-				hookmode_now = 2;
-			hookmode = 0;
-			__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500);
-		}
-		
-		
-		
-		/*demo
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);			//这个函数用于生成PWM波
-		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500); //这个函数用于生成占空比，cube中已经配置好了周期
-															//M2006.TargetAngle += channellcol * 0.02;                                                                                      //为20ms（与舵机一致）的时钟,只需修改第三个参数，
-															//对应关系为：0对应0,20000对应20ms，1500对应1.5ms，
-															//已知舵机仅接受0.5-2.5ms的信号，所以1500相当于令舵机转90°，
-															//500即0°，2500相当于转180°
-		*/
 	}
 	if (WorkState == ADDITIONAL_STATE_TWO) //扔球模式，拨轮控制电机，方法同１                                                   //下档
 	{
