@@ -64,9 +64,9 @@ void RemoteControlProcess(Remote *rc)
 
 	if (WorkState == NORMAL_STATE) //钩子为正，可以将左边上下写成刷子（可调速和方向）
 	{
-		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF;   //-           //这里已经默认写好了底盘的控制函数
-		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
-		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
+		ChassisSpeedRef.forward_back_ref = -channelrcol * RC_CHASSIS_SPEED_REF/2;   //-           //这里已经默认写好了底盘的控制函数
+		ChassisSpeedRef.left_right_ref = channelrrow * RC_CHASSIS_SPEED_REF / 4; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
+		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF/2;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
 		
 		//左边上下为刷子
@@ -80,14 +80,14 @@ void RemoteControlProcess(Remote *rc)
 		__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, 1500 - (rc->ch3 - 1000));	//ChassisSpeedRef.forward_back_ref是一个封装好的变量，通过改变它
 		*/
 		
-		
+		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 		
 		
 		//one push for 钩子
 		if (rc->dial > 1100 && hookmode == 0 && hookmode_now != 1) //向下
 		{
 			hookmode = 1;
-			auto_counter = 780;
+			auto_counter = 900;
 		}
 		if (rc->dial < 900 && hookmode == 0 && hookmode_now != 2) //向上
 		{
@@ -128,13 +128,13 @@ void RemoteControlProcess(Remote *rc)
 		ChassisSpeedRef.left_right_ref = -channelrrow * RC_CHASSIS_SPEED_REF / 2; //-           //右边摇杆控制前后左右的平移 左边摇杆控制旋转
 		rotate_speed = -channellrow * RC_ROTATE_SPEED_REF;						  //RC_CHASSIS_SPEED_REF是一个默认的数值，用来让行进速度达到合理值
 		
-		
+		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
 		
 		//one push for 钩子
 		if (rc->dial > 1100 && hookmode == 0 && hookmode_now != 1) //向下
 		{
 			hookmode = 1;
-			auto_counter = 780;
+			auto_counter = 890																																																																																																																																																																																																		;
 		}
 		if (rc->dial < 900 && hookmode == 0 && hookmode_now != 2) //向上
 		{
